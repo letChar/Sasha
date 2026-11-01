@@ -1,11 +1,4 @@
-*.tmp
-*.log
-build/
-dist/
-.env
-venv/
+﻿.coverage
+htmlcov/
 __pycache__/
 *.pyc
-.pytest_cache/
-.ruff_cache/
-.~lock.*#
