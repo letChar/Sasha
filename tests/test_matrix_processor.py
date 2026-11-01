@@ -6,6 +6,7 @@ from unittest.mock import patch
 from src.matrix_processor import swap_extreme_rows
 from src.json_protocol import read_json, write_json_atomic, SCHEMA_VERSION, ProtocolError
 from src.matrix_input import read_matrix_from_console, write_request
+from src.matrix_output import read_response, display_response
 import src.main
 
 
@@ -101,6 +102,59 @@ class MatrixInputTests(unittest.TestCase):
             p = Path(tmpdir) / "req.json"
             write_request([[1.0]], p)
             self.assertTrue(p.exists())
+
+
+class MatrixOutputTests(unittest.TestCase):
+    def setUp(self):
+        self.test_dir = TemporaryDirectory()
+        self.file_path = Path(self.test_dir.name) / "res.json"
+        self.valid_data = {
+            "schema_version": SCHEMA_VERSION,
+            "status": "ok",
+            "matrix": [[1.0, 2.0]],
+            "min_value": 1.0,
+            "max_value": 2.0,
+            "min_row": 0,
+            "max_row": 0
+        }
+
+    def tearDown(self):
+        self.test_dir.cleanup()
+
+    def test_read_response_success(self):
+        write_json_atomic(self.file_path, self.valid_data)
+        res = read_response(self.file_path)
+        self.assertEqual(res["status"], "ok")
+
+    def test_read_response_invalid_version(self):
+        self.valid_data["schema_version"] = "99.0"
+        write_json_atomic(self.file_path, self.valid_data)
+        with self.assertRaises(ProtocolError):
+            read_response(self.file_path)
+
+    def test_read_response_missing_fields(self):
+        self.valid_data.pop("status")
+        write_json_atomic(self.file_path, self.valid_data)
+        with self.assertRaises(ProtocolError):
+            read_response(self.file_path)
+
+    def test_read_response_not_ok_status(self):
+        self.valid_data["status"] = "error"
+        write_json_atomic(self.file_path, self.valid_data)
+        with self.assertRaises(ProtocolError):
+            read_response(self.file_path)
+
+    def test_read_response_invalid_matrix(self):
+        self.valid_data["matrix"] = "not a list"
+        write_json_atomic(self.file_path, self.valid_data)
+        with self.assertRaises(ProtocolError):
+            read_response(self.file_path)
+
+    def test_display_response_success(self):
+        write_json_atomic(self.file_path, self.valid_data)
+        logs = []
+        display_response(self.file_path, output_fn=logs.append)
+        self.assertTrue(any("Глобальный минимум" in line for line in logs))
 
 
 class MainModuleTests(unittest.TestCase):
