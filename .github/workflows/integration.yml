@@ -2,18 +2,34 @@ name: Integration checks
 
 on:
   push:
+    branches: [main, develop]
   pull_request:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  test:
+  integration:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - name: Получение исходного кода
+        uses: actions/checkout@v4
+
+      - name: Настройка Python
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
-      - run: python -m unittest discover -s tests -v
-      - run: python -m pip install coverage flake8
-      - run: coverage run --source=src -m unittest discover -s tests -v
-      - run: coverage report --fail-under=70
-      - run: flake8 src tests
+          python-version: "3.12"
+
+      - name: Установка средств проверки
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Проверка стиля
+        run: flake8 src tests
+
+      - name: Интеграционные тесты и сбор покрытия
+        run: coverage run --source=src -m unittest discover -s tests -v
+
+      - name: Проверка покрытия
+        run: coverage report --show-missing --fail-under=90

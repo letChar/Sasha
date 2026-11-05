@@ -159,19 +159,15 @@ class MatrixOutputTests(unittest.TestCase):
 
 class MainModuleTests(unittest.TestCase):
     def test_main_execution_flow(self):
-        with patch("src.matrix_input.read_matrix_from_console") as mock_read, \
-             patch("src.matrix_input.write_request"), \
-             patch("src.json_protocol.read_json") as mock_read_json:
-
-            mock_read.return_value = [[1.0]]
-            mock_read_json.return_value = {"matrix": [[1.0]], "schema_version": "1.0"}
-
-            try:
-                if hasattr(src.main, "process_request_file"):
-                    src.main.process_request_file(Path("fake_req.json"), Path("fake_res.json"))
-            except Exception:
-                pass
-            self.assertTrue(True)
+        with patch.object(
+            src.main, "read_matrix_from_console", return_value=[[1.0]]
+        ), patch.object(src.main, "write_request") as mock_write, patch.object(
+            src.main, "process_request_file"
+        ) as mock_process, patch.object(src.main, "display_response") as mock_display:
+            self.assertEqual(src.main.main(), 0)
+            mock_write.assert_called_once()
+            mock_process.assert_called_once()
+            mock_display.assert_called_once()
 
 
 if __name__ == "__main__":
