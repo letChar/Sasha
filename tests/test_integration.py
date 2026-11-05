@@ -93,13 +93,13 @@ class IntegrationTests(unittest.TestCase):
     def test_main_timeout(self):
         with patch.object(
             app, "read_matrix_from_console", side_effect=TimeoutError("время")
-        ):
+        ), patch("builtins.print"):
             self.assertEqual(app.main(), 1)
 
     def test_main_value_error(self):
         with patch.object(
             app, "read_matrix_from_console", side_effect=ValueError("ввод")
-        ):
+        ), patch("builtins.print"):
             self.assertEqual(app.main(), 1)
 
     def test_invalid_json(self):
