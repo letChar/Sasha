@@ -1,0 +1,10 @@
+Итоговая проверка
+
+pytest: 66 passed
+flake8: замечаний нет
+
+Покрытие с учётом ветвей:
+TOTAL 210 statements, 18 missed, 90 branches, 8 partial, 91% coverage
+
+Целевой порог: 75%
+Результат: порог выполнен.

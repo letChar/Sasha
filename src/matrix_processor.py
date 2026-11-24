@@ -100,6 +100,7 @@ def process_request_file(
     response_path: str | Path,
 ) -> dict[str, Any]:
     """Читает JSON-запрос, обрабатывает матрицу и записывает JSON-ответ."""
+    Path(response_path).unlink(missing_ok=True)
     request = read_json(request_path)
 
     if request.get("schema_version") != SCHEMA_VERSION:

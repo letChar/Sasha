@@ -1,5 +1,5 @@
 # Программа обработки вещественных матриц
-Статус проекта: версия 1.0.0 готова к проверке.
+Статус проекта: версия 1.1.0 протестирована.
 
 Консольное приложение на Python меняет местами строки, содержащие глобальный
 минимальный и глобальный максимальный элементы вещественной матрицы.
@@ -16,7 +16,7 @@
 
 - Python 3.11 или новее;
 - Git для работы с репозиторием;
-- `flake8` и `coverage` для проверки качества при разработке.
+- `pytest`, `flake8` и `coverage` для проверки качества.
 
 ## Запуск
 
@@ -30,9 +30,9 @@ python -m src.main
 ## Проверка
 
 ```bash
-python -m unittest discover -s tests -v
-coverage run --source=src -m unittest discover -s tests
-coverage report -m
+python -m pytest -q
+coverage run --branch --source=src -m pytest
+coverage report --show-missing --fail-under=75
 flake8 src tests
 ```
 
@@ -65,6 +65,9 @@ GitHub выбран из-за знакомого интерфейса, подд�
 - `docs/integration_test.md` — сценарии и результаты интеграционных тестов;
 - `docs/code_review.md` — замечания ревью и выполненные исправления;
 - `docs/integration_strategies.md` — сравнение стратегий интеграции.
+- `docs/testing.md` — причинно-следственный анализ и план тестирования;
+- `docs/testing_metrics.md` — итоговые метрики качества;
+- `docs/testing_methods.md` — сравнение методов тестирования.
 
 ## Автор
 
