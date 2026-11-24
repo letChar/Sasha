@@ -1,0 +1,36 @@
+name: Testing
+
+on:
+  push:
+    branches: [main, develop, lr4-testing]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.11", "3.12", "3.13"]
+    steps:
+      - name: Получение исходного кода
+        uses: actions/checkout@v4
+
+      - name: Настройка Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Установка зависимостей
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements-dev.txt
+
+      - name: Проверка стиля
+        run: flake8 src tests
+
+      - name: Тесты и покрытие
+        run: |
+          coverage run --branch --source=src -m pytest -q
+          coverage report --show-missing --fail-under=75
