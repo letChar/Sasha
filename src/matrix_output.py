@@ -1,5 +1,6 @@
 ﻿"""Модуль чтения JSON-ответа и отображения результата."""
 
+import math
 from pathlib import Path
 from typing import Any, Callable
 
@@ -34,10 +35,45 @@ def read_response(path: str | Path) -> dict[str, Any]:
             "Модуль обработки вернул статус, отличный от 'ok'."
         )
 
-    if not isinstance(response["matrix"], list) or not response["matrix"]:
+    matrix = response["matrix"]
+
+    if not isinstance(matrix, list) or not matrix:
         raise ProtocolError(
             "Поле 'matrix' в ответе должно быть непустым списком."
         )
+
+    column_count: int | None = None
+
+    for row in matrix:
+        if not isinstance(row, list) or not row:
+            raise ProtocolError("Строки матрицы в ответе должны быть непустыми.")
+
+        if column_count is None:
+            column_count = len(row)
+        elif len(row) != column_count:
+            raise ProtocolError("Матрица в ответе должна быть прямоугольной.")
+
+        for value in row:
+            if (
+                isinstance(value, bool)
+                or not isinstance(value, (int, float))
+                or not math.isfinite(float(value))
+            ):
+                raise ProtocolError("Матрица в ответе должна содержать конечные числа.")
+
+    for field in ("min_value", "max_value"):
+        value = response[field]
+        if (
+            isinstance(value, bool)
+            or not isinstance(value, (int, float))
+            or not math.isfinite(float(value))
+        ):
+            raise ProtocolError(f"Поле '{field}' должно содержать конечное число.")
+
+    for field in ("min_row", "max_row"):
+        value = response[field]
+        if isinstance(value, bool) or not isinstance(value, int) or not 0 <= value < len(matrix):
+            raise ProtocolError(f"Поле '{field}' содержит неверный номер строки.")
 
     return response
 
