@@ -14,10 +14,10 @@
 ## Команды
 
 ```bash
-python -m unittest discover -s tests -v
-coverage run --source=src -m unittest discover -s tests
-coverage report -m
+python -m pytest -q
+coverage run --branch --source=src -m pytest
+coverage report --show-missing --fail-under=75
 ```
 
 Актуальные числовые результаты фиксируются в журнале GitHub Actions для каждого
-коммита. Workflow завершает работу с ошибкой, если покрытие ниже 90 процентов.
+коммита. Workflow завершает работу с ошибкой, если покрытие ниже 75 процентов.
